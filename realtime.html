@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Realtime Interview</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Realtime Interview</div>
+    <div class="status"><a class="secondary small" href="index.html">Home</a></div>
+  </header>
+
+  <main class="container">
+    <section class="panel left">
+      <h2>Session</h2>
+      <div class="row">
+        <label>Life Event</label>
+        <select id="eventSelect">
+          <option value="wedding">Wedding Day</option>
+          <option value="birth">Birth of a Child</option>
+          <option value="first_job">First Job</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Language</label>
+        <select id="langSelect">
+          <option value="en-US" selected>English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="es-ES">Español</option>
+          <option value="fr-FR">Français</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Burn-in captions</label>
+        <label class="switch"><input type="checkbox" id="overlayToggle" checked /><span class="slider"></span></label>
+      </div>
+      <div class="row">
+        <label>Caption size</label>
+        <input type="range" id="captionSize" min="16" max="42" value="22"/><span id="captionSizeVal">22px</span>
+      </div>
+      <div class="cta">
+        <button id="connectBtn" class="primary">Connect AI</button>
+        <button id="startRecBtn" class="success" disabled>Start Recording</button>
+        <button id="stopRecBtn" class="danger" disabled>Stop & Save</button>
+        <button id="srtBtn" class="secondary" disabled>Export SRT</button>
+      </div>
+      <p class="tiny">Tip: wear headphones to avoid echo. The AI will finish its thought before you can interrupt.</p>
+    </section>
+
+    <section class="panel right">
+      <div class="video-wrap">
+        <video id="preview" playsinline autoplay muted></video>
+        <canvas id="overlayCanvas"></canvas>
+        <div id="questionBanner"></div>
+        <audio id="assistantAudio" autoplay></audio>
+      </div>
+      <div class="progress"><div id="progressBar"></div></div>
+      <div id="log"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div>Saved files appear below after stopping. Tap to download.</div>
+    <div id="downloads" class="downloads"></div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="realtime.js"></script>
+</body>
+</html>
