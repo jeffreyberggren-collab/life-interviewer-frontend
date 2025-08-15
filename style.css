@@ -1,4 +1,4 @@
-/* Pro styles */
+/* Styles + banner + debug console */
 :root { --bg:#0c0f19; --panel:#121623; --text:#e9ecf4; --muted:#a6afc3; --primary:#6ea8fe; --success:#7bd389; --danger:#ff7b7b; --accent:#b18cff; }
 *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
 .logo{width:22px;height:22px;border-radius:6px}
@@ -31,4 +31,6 @@ select,input[type="number"],input[type="text"]{width:100%;background:#0f1322;bor
 .slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
 input:checked + .slider{background:var(--primary)}
 input:checked + .slider:before{transform:translateX(22px)}
-#log{margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap}
+#log{margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap;min-height:120px;background:#0b0f1c;border:1px dashed #2a3148;border-radius:10px;padding:8px}
+.banner{margin-top:8px;padding:10px;border-radius:10px;background:#2a1a1a;border:1px solid #5a2a2a;color:#ffdede}
+.hidden{display:none}

@@ -3,19 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Life Interviewer — Fresh Start</title>
+  <title>Life Interviewer — Buttons Fix</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand"><img class="logo" src="icons/icon-192.png" alt="">Life Interviewer — Fresh Start</div>
-    <div class="status"><a class="secondary small" href="realtime.html">Realtime ▶</a></div>
+    <div class="brand"><img class="logo" src="icons/icon-192.png" alt="">Life Interviewer</div>
+    <div class="status"><a class="secondary small" href="realtime.html?v=fix2">Realtime ▶</a></div>
   </header>
   <main class="container">
     <section class="panel">
       <h2>Welcome</h2>
-      <p>Open <a href="realtime.html">Realtime</a> to talk with the AI interviewer, see live captions, and save your video locally.</p>
+      <p>Tap <a href="realtime.html?v=fix2">Realtime</a> to start. If buttons ever do nothing, scroll down to the in-page debug console.</p>
+    </section>
+    <section class="panel">
+      <h2>Troubleshooting</h2>
+      <ol>
+        <li>Open <code>config.js</code> and set <code>SERVER_URL</code> to your Render URL.</li>
+        <li>Reload this page in a private window (updates the service worker).</li>
+        <li>Open <a href="realtime.html?v=fix2">Realtime</a> and watch the debug console at the bottom.</li>
+      </ol>
     </section>
   </main>
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}</script>
