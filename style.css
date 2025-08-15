@@ -1,4 +1,4 @@
-/* Styles + banner + debug console */
+/* Pro styles */
 :root { --bg:#0c0f19; --panel:#121623; --text:#e9ecf4; --muted:#a6afc3; --primary:#6ea8fe; --success:#7bd389; --danger:#ff7b7b; --accent:#b18cff; }
 *{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
 .logo{width:22px;height:22px;border-radius:6px}
