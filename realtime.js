@@ -62,9 +62,15 @@
       });
       const answer = { type:'answer', sdp: await sdpResp.text() }; await pc.setRemoteDescription(answer);
 
-      if (dc?.readyState === 'open'){
-        dc.send(JSON.stringify({ type:'response.create', response:{ instructions:`Speak English (US). Be an old friend focused on ${eventSelect.value}. One question at a time.` } }));
-      }
+      // Send initial instructions
+      dc.onopen = () => {
+        dc.send(JSON.stringify({ 
+          type:'response.create', 
+          response:{ 
+            instructions:`Speak English (US). Act like an old friend, stay on topic about ${eventSelect.value}. Ask one question at a time, let the user finish before speaking again.`
+          } 
+        }));
+      };
 
       connectBtn.disabled = true; startRecBtn.disabled = false;
       log('Connected');
@@ -93,9 +99,12 @@
           const pad = Math.round(vw * 0.025);
           const boxH = Math.round(vh * 0.22);
           const grad = ctx.createLinearGradient(0, vh - boxH, 0, vh);
-          grad.addColorStop(0, 'rgba(0,0,0,0)'); grad.addColorStop(0.35, 'rgba(0,0,0,0.55)'); grad.addColorStop(1, 'rgba(0,0,0,0.8)');
+          grad.addColorStop(0, 'rgba(0,0,0,0)');
+          grad.addColorStop(0.35, 'rgba(0,0,0,0.55)');
+          grad.addColorStop(1, 'rgba(0,0,0,0.8)');
           ctx.fillStyle = grad; ctx.fillRect(0, vh - boxH, vw, boxH);
-          ctx.fillStyle='white'; ctx.font = `bold ${Math.max(Number(captionSize.value), Math.round(vw*0.035))}px -apple-system,system-ui,Segoe UI,Roboto,Helvetica,Arial`;
+          ctx.fillStyle='white';
+          ctx.font = `bold ${Math.max(Number(captionSize.value), Math.round(vw*0.035))}px sans-serif`;
           ctx.textBaseline='bottom';
           const lines = wrap(ctx, text, vw - pad*2);
           let y = vh - pad;
@@ -104,7 +113,16 @@
         requestAnimationFrame(frame);
       })();
     }
-    function wrap(ctx, text, maxWidth){ const words=text.split(' '), lines=[]; let line=''; for(const w of words){ const test=line?line+' '+w:w; if(ctx.measureText(test).width>maxWidth){ if(line) lines.push(line); line=w; } else { line=test; } } if(line) lines.push(line); return lines.slice(-4); }
+    function wrap(ctx, text, maxWidth){
+      const words=text.split(' '), lines=[]; let line='';
+      for(const w of words){ 
+        const test=line?line+' '+w:w; 
+        if(ctx.measureText(test).width>maxWidth){ if(line) lines.push(line); line=w; } 
+        else { line=test; } 
+      }
+      if(line) lines.push(line); 
+      return lines.slice(-4);
+    }
 
     // captions + gating
     let currentCaption={i:null,start:null,text:''};
@@ -126,7 +144,14 @@
     function onAssistantStart(){ const mic=localStream?.getAudioTracks()?.[0]; if(mic) mic.enabled=false; }
     function onAssistantStop(){ const mic=localStream?.getAudioTracks()?.[0]; if(mic) mic.enabled=true; }
 
-    function toSrtTime(ms){ const t=Math.max(ms,0),hh=Math.floor(t/3600000),mm=Math.floor((t%3600000)/60000),ss=Math.floor((t%60000)/1000),ms3=Math.floor(t%1000); return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')},${String(ms3).padStart(3,'0')}`; }
+    function toSrtTime(ms){ 
+      const t=Math.max(ms,0),
+      hh=Math.floor(t/3600000),
+      mm=Math.floor((t%3600000)/60000),
+      ss=Math.floor((t%60000)/1000),
+      ms3=Math.floor(t%1000); 
+      return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')},${String(ms3).padStart(3,'0')}`; 
+    }
     function exportSrt(){
       if(!captions.length){ alert('No captions yet.'); return; }
       const t0=captions[0].start;
@@ -134,8 +159,10 @@
       const blob=new Blob([lines.join('\n')],{type:'text/plain'});
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); const stamp=new Date().toISOString().replace(/[:.]/g,'-');
-      a.href=url; a.download=`captions_${stamp}.srt`; a.textContent=`Download SRT — ${stamp}`;
-      downloads.appendChild(a); setTimeout(()=>URL.revokeObjectURL(url),30000);
+      a.href=url; a.download=`captions_${stamp}.srt`;
+      a.textContent=`Download SRT — ${stamp}`;
+      downloads.appendChild(a); 
+      setTimeout(()=>URL.revokeObjectURL(url),30000);
     }
 
     async function startRecording(){
@@ -146,12 +173,34 @@
       if(remoteStream?.getAudioTracks()?.length){ audioCtx.createMediaStreamSource(new MediaStream([remoteStream.getAudioTracks()[0]])).connect(mixed); }
       const out = new MediaStream([...canvasStream.getVideoTracks()]);
       if(mixed.stream.getAudioTracks().length){ out.addTrack(mixed.stream.getAudioTracks()[0]); }
-      const prefs=['video/mp4;codecs=avc1,mp4a','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']; let mime=''; for(const t of prefs){ if(MediaRecorder.isTypeSupported(t)){ mime=t; break; } }
-      const chunks=[]; const rec=new MediaRecorder(out, mime?{mimeType:mime}:undefined);
+      const prefs=['video/mp4;codecs=avc1,mp4a','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']; 
+      let mime=''; for(const t of prefs){ if(MediaRecorder.isTypeSupported(t)){ mime=t; break; } }
+      const chunks=[]; 
+      const rec=new MediaRecorder(out, mime?{mimeType:mime}:undefined);
       rec.ondataavailable=(e)=>{ if(e.data && e.data.size) chunks.push(e.data); };
-      rec.onstop=()=>{ const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); const stamp=new Date().toISOString().replace(/[:.]/g,'-'); const ext=(rec.mimeType||'').includes('mp4')?'mp4':'webm'; a.href=url; a.download=`interview_${stamp}.${ext}`; a.textContent=`Download video (${ext.upper() if False else ext.upper()}) — ${stamp}`; downloads.appendChild(a); setTimeout(()=>URL.revokeObjectURL(url),60000); };
-      rec.start(); mediaRecorder=rec; startRecBtn.disabled=true; stopRecBtn.disabled=false; srtBtn.disabled=false;
+      rec.onstop=()=>{
+        const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a'); 
+        const stamp=new Date().toISOString().replace(/[:.]/g,'-'); 
+        const ext=(rec.mimeType||'').includes('mp4')?'mp4':'webm';
+        a.href=url; 
+        a.download=`interview_${stamp}.${ext}`;
+        a.textContent=`Download video (${ext.toUpperCase()}) — ${stamp}`;
+        downloads.appendChild(a); 
+        setTimeout(()=>URL.revokeObjectURL(url),60000);
+      };
+      rec.start(); 
+      mediaRecorder=rec; 
+      startRecBtn.disabled=true; 
+      stopRecBtn.disabled=false; 
+      srtBtn.disabled=false;
     }
-    function stopRecording(){ if(!mediaRecorder){ alert('Recorder not started'); return; } mediaRecorder.stop(); startRecBtn.disabled=false; stopRecBtn.disabled=true; }
+    function stopRecording(){ 
+      if(!mediaRecorder){ alert('Recorder not started'); return; } 
+      mediaRecorder.stop(); 
+      startRecBtn.disabled=false; 
+      stopRecBtn.disabled=true; 
+    }
   }
 })();
